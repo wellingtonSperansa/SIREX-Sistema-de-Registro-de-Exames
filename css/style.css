@@ -1,0 +1,113 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+header {
+    background-color: #004080;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+header img {
+    max-height: 80px;
+}
+
+nav {
+    background-color: #0066cc;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    position: relative;
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px;
+}
+
+nav ul li:hover>ul {
+    display: block;
+}
+
+nav ul li ul {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background-color: #005bb5;
+    padding: 10px 0;
+    border-radius: 4px;
+    z-index: 999;
+}
+
+nav ul li ul li {
+    width: 150px;
+    text-align: left;
+}
+
+nav ul li ul li a {
+    display: block;
+    padding: 8px 16px;
+    color: white;
+}
+
+nav ul li ul li a:hover {
+    background-color: #004080;
+}
+
+main {
+    padding: 20px;
+    min-height: 400px;
+}
+
+footer {
+    background-color: #004080;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+.atalhos-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.atalho-box {
+    background-color: #ffffff;
+    border: 2px solid #0066cc;
+    color: #0066cc;
+    text-align: center;
+    padding: 40px 20px;
+    width: 200px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.atalho-box:hover {
+    background-color: #0066cc;
+    color: white;
+    cursor: pointer;
+    transform: translateY(-5px);
+}
