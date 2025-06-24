@@ -81,6 +81,10 @@ footer {
     color: white;
     text-align: center;
     padding: 15px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
 }
 
 .atalhos-container {
@@ -110,4 +114,15 @@ footer {
     color: white;
     cursor: pointer;
     transform: translateY(-5px);
+}
+
+#logo-cabecalho {
+    width: auto;
+    /* Defina a largura desejada */
+    height: auto;
+    /* Mantém a proporção da imagem */
+}
+
+.textoCentral {
+    text-align: center;
 }
