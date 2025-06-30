@@ -35,7 +35,18 @@
     <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">CADASTRO DE EXAMES</h2>
+        <form form class="form-cadastro-requisicao"> 
+            <div class="form-group">
+                <label for="nomeExame">Nome do Exame:</label>
+                <input type="text" id="nomeExame" name="nomeExame" required>
+            </div>
 
+            <div class="form-group">
+                <label for="descricaoExame">Descrição do Exame:</label>
+                <textarea id="descricaoExame" name="descricaoExame" rows="4" required></textarea>
+            </div>
+             <button type="submit" class="btn-submit">Cadastrar Exame</button>
+        </form>
     </main>
 
     <!-- Rodapé -->
