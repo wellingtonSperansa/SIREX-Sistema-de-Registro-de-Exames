@@ -146,13 +146,46 @@
                 <button type="submit" class="gravar">Gravar Dados</button>
                 <button type="reset" class="cancelar">Cancelar</button>
             </div>
-        </form>
+        <form id="formPaciente"></form>
     </main>
 
     <!-- Rodapé -->
     <footer>
         Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
+<script src="script.js"></script>
+<script>
+    document.getElementById("formPaciente").addEventListener("submit", function (event) {
+        event.preventDefault(); // Impede o reload da página
+
+        const paciente = {
+            nome: document.getElementById("nome").value.trim(),
+            cpf: document.getElementById("cpf").value.trim(),
+            contato: document.getElementById("contato").value.trim(),
+            data_nascimento: document.getElementById("data_nascimento").value,
+            genero: document.getElementById("genero").value
+        };
+
+        if (!db) {
+            alert("Banco de dados não carregado ainda.");
+            return;
+        }
+
+        const transaction = db.transaction(["pacientes"], "readwrite");
+        const store = transaction.objectStore("pacientes");
+
+        const request = store.add(paciente);
+
+        request.onsuccess = function () {
+            alert("Paciente cadastrado com sucesso!");
+            document.getElementById("formPaciente").reset();
+        };
+
+        request.onerror = function (event) {
+            alert("Erro ao cadastrar paciente: " + event.target.error);
+        };
+    });
+</script>
 
 </body>
 
