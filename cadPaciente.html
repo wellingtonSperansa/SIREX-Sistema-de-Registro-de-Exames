@@ -6,6 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CADASTRO DE PACIENTE</title>
     <link rel="stylesheet" href="css/style.css" />
+    <style>
+        main {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .botoes {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .gravar {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .cancelar {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,6 +89,42 @@
     <main>
         <h2 class="textoCentral">CADASTRO DE PACIENTE</h2>
 
+        <form>
+            <div>
+                <label for="nome">Nome do Paciente</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+
+            <div>
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" name="cpf" required>
+            </div>
+
+            <div>
+                <label for="contato">Contato</label>
+                <input type="text" id="contato" name="contato" required>
+            </div>
+
+            <div>
+                <label for="data_nascimento">Data de Nascimento</label>
+                <input type="date" id="data_nascimento" name="data_nascimento" required>
+            </div>
+
+            <div>
+                <label for="genero">Gênero</label>
+                <select id="genero" name="genero" required>
+                    <option value="">Selecione</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="botoes">
+                <button type="submit" class="gravar">Gravar Dados</button>
+                <button type="reset" class="cancelar">Cancelar</button>
+            </div>
+        </form>
     </main>
 
     <!-- Rodapé -->
