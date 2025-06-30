@@ -10,12 +10,10 @@
 
 <body>
 
-    <!-- Cabeçalho -->
     <header>
         <img src="sua-imagem-aqui.png" alt="Logo do Sistema" />
     </header>
 
-    <!-- Menu de navegação -->
     <nav>
         <ul>
             <li><a href="/index.html">HOME</a></li>
@@ -32,15 +30,57 @@
         </ul>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">CADASTRO DE REQUISIÇÃO</h2>
+        <form action="#" method="POST" class="form-cadastro-requisicao">
+            <div class="form-group">
+                <label for="dataRequisicao">Data da Requisição:</label>
+                <input type="date" id="dataRequisicao" name="dataRequisicao" required>
+            </div>
 
+            <div class="form-group">
+                <label for="paciente">Paciente:</label>
+                <select id="paciente" name="paciente" required>
+                    <option value="">Selecione um paciente</option>
+                    <option value="1">Maria Silva</option>
+                    <option value="2">João Santos</option>
+                    <option value="3">Ana Oliveira</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="medico">Médico Solicitante:</label>
+                <select id="medico" name="medico" required>
+                    <option value="">Selecione um médico</option>
+                    <option value="101">Dr. Carlos Mendes</option>
+                    <option value="102">Dra. Fernanda Lima</option>
+                    <option value="103">Dr. Rafael Souza</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Exames Solicitados:</label>
+                <div class="exames-checkboxes">
+                    <label><input type="checkbox" name="exames" value="hemograma"> Hemograma Completo</label>
+                    <label><input type="checkbox" name="exames" value="glicemia"> Glicemia em Jejum</label>
+                    <label><input type="checkbox" name="exames" value="colesterol"> Colesterol Total e Frações</label>
+                    <label><input type="checkbox" name="exames" value="urina"> Exame de Urina</label>
+                    <label><input type="checkbox" name="exames" value="fezes"> Exame de Fezes</label>
+                    <label><input type="checkbox" name="exames" value="raio_x_torax"> Raio-X de Tórax</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Cadastrar Requisição</button>
+        </form>   
     </main>
 
-    <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
 
 </body>
