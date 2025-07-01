@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Exames - IndexedDB</title>
+</head>
+
+<body>
+    <h1>Sistema de Exames (IndexedDB)</h1>
+
+    <button onclick="cadastrarMedico()">Cadastrar Médico</button>
+    <button onclick="cadastrarPaciente()">Cadastrar Paciente</button>
+    <button onclick="cadastrarExame()">Cadastrar Exame</button>
+    <button onclick="cadastrarRequisicao()">Cadastrar Requisição</button>
+    <button onclick="listarRequisicoes()">Listar Requisições</button>
+
+    <script>
+        let db;
+
+        const request = indexedDB.open('SistemaExames', 1);
+
+        request.onupgradeneeded = function (event) {
+            db = event.target.result;
+
+            // Médicos
+            if (!db.objectStoreNames.contains('medicos')) {
+                let medicos = db.createObjectStore('medicos', { keyPath: 'id', autoIncrement: true });
+                medicos.createIndex('cpf', 'cpf', { unique: true });
+                medicos.createIndex('crm', 'crm', { unique: true });
+            }
+
+            // Pacientes
+            if (!db.objectStoreNames.contains('pacientes')) {
+                let pacientes = db.createObjectStore('pacientes', { keyPath: 'id', autoIncrement: true });
+                pacientes.createIndex('cpf', 'cpf', { unique: true });
+            }
+
+            // Exames
+            if (!db.objectStoreNames.contains('exames')) {
+                let exames = db.createObjectStore('exames', { keyPath: 'id', autoIncrement: true });
+            }
+
+            // Requisições
+            if (!db.objectStoreNames.contains('requisicoes')) {
+                let requisicoes = db.createObjectStore('requisicoes', { keyPath: 'id', autoIncrement: true });
+                requisicoes.createIndex('idPaciente', 'idPaciente', { unique: false });
+                requisicoes.createIndex('idMedico', 'idMedico', { unique: false });
+                requisicoes.createIndex('idExame', 'idExame', { unique: false });
+            }
+
+            console.log('Estrutura do banco criada.');
+        };
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log('Banco de dados pronto.');
+        };
+
+        request.onerror = function (event) {
+            console.error('Erro ao abrir o banco:', event.target.error);
+        };
+
+        // Função para cadastrar Médico
+        function cadastrarMedico() {
+            const transaction = db.transaction(['medicos'], 'readwrite');
+            const store = transaction.objectStore('medicos');
+
+            const medico = {
+                nome: 'Dr. João Silva',
+                cpf: '123.456.789-00',
+                crm: 'CRM12345',
+                contato: '49999999999',
+                email: 'joao@medico.com'
+            };
+
+            const request = store.add(medico);
+
+            request.onsuccess = () => console.log('Médico cadastrado!');
+            request.onerror = (e) => console.error('Erro ao cadastrar médico:', e.target.error);
+        }
+
+        // Função para cadastrar Paciente
+        function cadastrarPaciente() {
+            const transaction = db.transaction(['pacientes'], 'readwrite');
+            const store = transaction.objectStore('pacientes');
+
+            const paciente = {
+                nome: 'Maria Souza',
+                cpf: '987.654.321-00',
+                contato: '49988888888',
+                dataNascimento: '1990-05-15',
+                genero: 'Feminino'
+            };
+
+            const request = store.add(paciente);
+
+            request.onsuccess = () => console.log('Paciente cadastrado!');
+            request.onerror = (e) => console.error('Erro ao cadastrar paciente:', e.target.error);
+        }
+
+        // Função para cadastrar Exame
+        function cadastrarExame() {
+            const transaction = db.transaction(['exames'], 'readwrite');
+            const store = transaction.objectStore('exames');
+
+            const exame = {
+                nomeExame: 'Hemograma Completo',
+                descricao: 'Análise geral dos elementos do sangue.'
+            };
+
+            const request = store.add(exame);
+
+            request.onsuccess = () => console.log('Exame cadastrado!');
+            request.onerror = (e) => console.error('Erro ao cadastrar exame:', e.target.error);
+        }
+
+        // Função para cadastrar Requisição (usando IDs fictícios)
+        function cadastrarRequisicao() {
+            const transaction = db.transaction(['requisicoes'], 'readwrite');
+            const store = transaction.objectStore('requisicoes');
+
+            const requisicao = {
+                idPaciente: 1,  // <-- Troque pelos IDs reais depois de cadastrar paciente
+                idMedico: 1,    // <-- Troque pelos IDs reais depois de cadastrar médico
+                idExame: 1,     // <-- Troque pelos IDs reais depois de cadastrar exame
+                dataRequisicao: new Date().toISOString().split('T')[0]
+            };
+
+            const request = store.add(requisicao);
+
+            request.onsuccess = () => console.log('Requisição cadastrada!');
+            request.onerror = (e) => console.error('Erro ao cadastrar requisição:', e.target.error);
+        }
+
+        // Função para listar todas as requisições
+        function listarRequisicoes() {
+            const transaction = db.transaction(['requisicoes'], 'readonly');
+            const store = transaction.objectStore('requisicoes');
+            const request = store.openCursor();
+
+            request.onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    console.log('Requisição:', cursor.value);
+                    cursor.continue();
+                } else {
+                    console.log('Fim das requisições.');
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>

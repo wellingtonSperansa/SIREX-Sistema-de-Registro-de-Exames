@@ -7,75 +7,10 @@
     <title>Cadastro de Médico</title>
 
     <style>
-        /* Estrutura básica */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f2f2f2;
-        }
-
-        header {
-            background-color: #fff;
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ccc;
-        }
-
         header img {
             width: 150px;
         }
 
-        /* MENU CENTRALIZADO E AZUL */
-        nav {
-            background-color: #0056b3;
-        }
-
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        nav ul li {
-            position: relative;
-        }
-
-        nav ul li a {
-            color: white;
-            padding: 15px 20px;
-            display: block;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        nav ul li:hover {
-            background-color: #004095;
-        }
-
-        nav ul li ul {
-            display: none;
-            position: absolute;
-            background: #004095;
-            top: 100%;
-            left: 0;
-            min-width: 200px;
-            z-index: 10;
-        }
-
-        nav ul li:hover ul {
-            display: block;
-        }
-
-        nav ul li ul li a {
-            padding: 10px;
-            font-weight: normal;
-        }
-
-        /* Conteúdo principal */
         main {
             padding: 30px 20px;
         }
@@ -147,16 +82,15 @@
             font-size: 0.9rem;
         }
     </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
-    <!-- Cabeçalho -->
     <header>
         <img src="/media/logo.png" alt="Logo do Sistema" />
     </header>
 
-    <!-- Menu de navegação -->
     <nav>
         <ul>
             <li><a href="/index.html">HOME</a></li>
@@ -173,12 +107,11 @@
         </ul>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">Cadastro de Médico</h2>
 
         <section class="form-container">
-            <form action="#" method="post">
+            <form id="formMedico">
                 <label for="nome">Nome do Médico:</label>
                 <input type="text" id="nome" name="nome" placeholder="Digite o nome completo" required />
 
@@ -203,10 +136,56 @@
         </section>
     </main>
 
-    <!-- Rodapé -->
     <footer>
         Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
+
+    <script>
+        let db;
+
+        const request = indexedDB.open('SistemaExames', 1);
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log('Banco de dados aberto com sucesso.');
+        };
+
+        request.onerror = function (event) {
+            console.error('Erro ao abrir o banco:', event.target.error);
+        };
+
+        document.getElementById('formMedico').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (!db) {
+                alert('Banco de dados não está pronto. Tente novamente em alguns segundos.');
+                return;
+            }
+
+            const nome = document.getElementById('nome').value;
+            const cpf = document.getElementById('cpf').value;
+            const crm = document.getElementById('crm').value;
+            const email = document.getElementById('email').value;
+            const contato = document.getElementById('contato').value;
+
+            const transaction = db.transaction(['medicos'], 'readwrite');
+            const store = transaction.objectStore('medicos');
+
+            const medico = { nome, cpf, crm, contato, email };
+
+            const addRequest = store.add(medico);
+
+            addRequest.onsuccess = function () {
+                alert('Médico cadastrado com sucesso!');
+                document.getElementById('formMedico').reset();
+            };
+
+            addRequest.onerror = function (event) {
+                console.error('Erro ao cadastrar médico:', event.target.error);
+                alert('Erro ao cadastrar médico. Verifique se o CPF ou CRM já estão cadastrados.');
+            };
+        });
+    </script>
 
 </body>
 
