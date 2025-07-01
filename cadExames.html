@@ -10,12 +10,10 @@
 
 <body>
 
-    <!-- Cabeçalho -->
     <header>
         <img src="sua-imagem-aqui.png" alt="Logo do Sistema" />
     </header>
 
-    <!-- Menu de navegação -->
     <nav>
         <ul>
             <li><a href="/index.html">HOME</a></li>
@@ -32,10 +30,9 @@
         </ul>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">CADASTRO DE EXAMES</h2>
-        <form form class="form-cadastro-requisicao"> 
+        <form class="form-cadastro-requisicao">
             <div class="form-group">
                 <label for="nomeExame">Nome do Exame:</label>
                 <input type="text" id="nomeExame" name="nomeExame" required>
@@ -45,15 +42,145 @@
                 <label for="descricaoExame">Descrição do Exame:</label>
                 <textarea id="descricaoExame" name="descricaoExame" rows="4" required></textarea>
             </div>
-             <button type="submit" class="btn-submit">Cadastrar Exame</button>
+            <button type="submit" class="btn-submit">Cadastrar Exame</button>
         </form>
     </main>
 
-    <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
 
+    <script src="src/script.js"></script>
+    <script>
+        let cadExamesForm = null;
+
+        // Função para ativar o formulário de cadastro de exames
+        window.activateCadExamesForm = function () {
+            console.log('activateCadExamesForm: Função chamada.');
+
+            if (!cadExamesForm) {
+                cadExamesForm = document.querySelector('.form-cadastro-requisicao');
+                if (!cadExamesForm) {
+                    console.error("activateCadExamesForm: Formulário com classe 'form-cadastro-requisicao' não encontrado.");
+                    return;
+                } else {
+                    console.log("activateCadExamesForm: Formulário 'form-cadastro-requisicao' encontrado.");
+                }
+            }
+
+            cadExamesForm.removeEventListener('submit', handleSubmit);
+            cadExamesForm.addEventListener('submit', handleSubmit);
+            console.log('activateCadExamesForm: Event listener de submit adicionado ao formulário.');
+        };
+
+        // Manipulador de evento para o submit do formulário
+        function handleSubmit(event) {
+            event.preventDefault();
+            console.log('handleSubmit: Evento de submit interceptado.');
+
+            if (!window.indexedDB_db) {
+                console.error('handleSubmit: Objeto IndexedDB (window.indexedDB_db) não está disponível. Não é possível prosseguir com o cadastro.');
+                alert('Erro: O banco de dados não está pronto. Tente recarregar a página.');
+                return;
+            }
+            console.log('handleSubmit: IndexedDB (window.indexedDB_db) está disponível.');
+
+            const nomeExame = document.getElementById('nomeExame').value.trim(); // Adiciona .trim() para remover espaços em branco
+            const descricaoExame = document.getElementById('descricaoExame').value.trim();
+
+            console.log(`handleSubmit: Coletando dados - Nome: "${nomeExame}", Descrição: "${descricaoExame}"`);
+
+            if (!nomeExame || !descricaoExame) {
+                console.warn('handleSubmit: Campos Nome do Exame ou Descrição do Exame estão vazios. Preenchimento obrigatório.');
+                alert('Por favor, preencha todos os campos do exame.');
+                return;
+            }
+
+            try {
+                const transaction = window.indexedDB_db.transaction(['exames'], 'readwrite');
+                console.log('handleSubmit: Transação iniciada com sucesso para a store "exames".');
+                const objectStore = transaction.objectStore('exames');
+                console.log('handleSubmit: Object Store "exames" acessada.');
+
+                // 1. Verificar se o exame já existe pelo nome
+                const requestCheck = objectStore.index('nome').get(nomeExame);
+
+                requestCheck.onsuccess = function() {
+                    if (requestCheck.result) {
+                        // Se requestCheck.result não for null, o exame já existe
+                        console.warn('handleSubmit: Exame com este nome já existe:', requestCheck.result);
+                        alert('Já existe um exame cadastrado com este nome. Por favor, use um nome diferente.');
+                        // A transação será abortada implicitamente se nada mais for feito, mas podemos abortar explicitamente para clareza
+                        transaction.abort();
+                        return; // Sai da função
+                    }
+
+                    // 2. Se o exame não existe, prosseguir com a adição
+                    const novoExame = {
+                        nome: nomeExame,
+                        descricao: descricaoExame
+                    };
+                    console.log('handleSubmit: Novo objeto de exame criado:', novoExame);
+
+                    const requestAdd = objectStore.add(novoExame);
+                    console.log('handleSubmit: Requisição de adição de exame enviada.');
+
+                    requestAdd.onsuccess = function () {
+                        console.log('requestAdd.onsuccess: Exame adicionado à Object Store com sucesso. ID:', requestAdd.result);
+                        cadExamesForm.reset();
+                        console.log('requestAdd.onsuccess: Formulário resetado.');
+                        alert('Exame cadastrado com sucesso!'); // Alerta de sucesso aqui
+                    };
+
+                    requestAdd.onerror = function () {
+                        console.error('requestAdd.onerror: Erro ao adicionar exame na Object Store:', requestAdd.error);
+                        alert('Erro ao cadastrar exame. Verifique o console para mais detalhes.');
+                    };
+                };
+
+                requestCheck.onerror = function() {
+                    console.error('requestCheck.onerror: Erro ao verificar a existência do exame:', requestCheck.error);
+                    alert('Erro ao verificar a existência do exame. Tente novamente.');
+                    transaction.abort();
+                };
+
+                // O transaction.oncomplete e transaction.onerror devem continuar a escutar eventos da transação geral
+                transaction.oncomplete = function () {
+                    console.log('transaction.oncomplete: Transação de cadastro/verificação concluída com sucesso!');
+                    // O alert de sucesso específico foi movido para requestAdd.onsuccess
+                };
+
+                transaction.onerror = function (event) {
+                    console.error('transaction.onerror: Erro na transação de cadastro de exame:', event.target.error);
+                    // Verifica se o erro não foi um "AbortError" (que acontece quando chamamos transaction.abort())
+                    if (event.target.error.name !== 'AbortError') {
+                        alert('Ocorreu um erro inesperado na transação do banco de dados. Verifique o console.');
+                    }
+                };
+
+            } catch (error) {
+                console.error('handleSubmit: Erro inesperado ao tentar iniciar a transação ou acessar a object store:', error);
+                alert('Ocorreu um erro interno. Verifique o console.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOMContentLoaded: DOM completamente carregado.');
+            cadExamesForm = document.querySelector('.form-cadastro-requisicao');
+            if (cadExamesForm) {
+                console.log('DOMContentLoaded: Formulário "form-cadastro-requisicao" encontrado.');
+            } else {
+                console.error('DOMContentLoaded: Formulário "form-cadastro-requisicao" NÃO encontrado.');
+            }
+
+            if (window.indexedDB_db) {
+                console.log('DOMContentLoaded: IndexedDB já estava pronto. Chamando activateCadExamesForm.');
+                window.activateCadExamesForm();
+            } else {
+                console.log('DOMContentLoaded: IndexedDB ainda não está pronto. Aguardando script.js.');
+            }
+        });
+    </script>
 </body>
 
 </html>
