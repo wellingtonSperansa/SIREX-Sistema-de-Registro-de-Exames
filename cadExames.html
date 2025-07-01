@@ -73,14 +73,14 @@
             const transaction = window.indexedDB_db.transaction(['exames'], 'readwrite');
             const objectStore = transaction.objectStore('exames');
 
-            // Verifica se o exame já existe
+            
             const requestCheck = objectStore.index('nome').get(nomeExame);
 
             requestCheck.onsuccess = function () {
                 if (requestCheck.result) {
                     alert('Já existe um exame cadastrado com este nome. Por favor, use um nome diferente.');
                 } else {
-                    // Se não existe, adiciona
+                    
                     const novoExame = {
                         nome: nomeExame,
                         descricao: descricaoExame
