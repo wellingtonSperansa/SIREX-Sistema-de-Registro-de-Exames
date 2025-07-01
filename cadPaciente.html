@@ -1,6 +1,4 @@
-<!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,13 +82,10 @@
 </head>
 
 <body>
-
-    <!-- Cabeçalho -->
     <header>
-        <img src="sua-imagem-aqui.png" alt="Logo do Sistema" />
+        <img src="/media/Captura de tela 2025-06-30 213203.png" alt="Logo do Sistema" />
     </header>
 
-    <!-- Menu de navegação -->
     <nav>
         <ul>
             <li><a href="/index.html">HOME</a></li>
@@ -107,14 +102,13 @@
         </ul>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">CADASTRO DE PACIENTE</h2>
 
-        <form>
+        <form id="formPaciente">
             <div>
                 <label for="nome">Nome do Paciente</label>
-                <input type="text" id="nome" name="nome" placeholder= "Digite seu nome aqui" required>
+                <input type="text" id="nome" name="nome" placeholder="Digite seu nome aqui" required>
             </div>
 
             <div>
@@ -124,7 +118,7 @@
 
             <div>
                 <label for="contato">Contato</label>
-                <input type="text" id="contato" name="contato" placeholder=" (00)12345678" required>
+                <input type="text" id="contato" name="contato" placeholder="(00)12345678" required>
             </div>
 
             <div>
@@ -146,47 +140,84 @@
                 <button type="submit" class="gravar">Gravar Dados</button>
                 <button type="reset" class="cancelar">Cancelar</button>
             </div>
-        <form id="formPaciente"></form>
+        </form>
     </main>
 
-    <!-- Rodapé -->
     <footer>
         Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
-<script src="script.js"></script>
-<script>
-    document.getElementById("formPaciente").addEventListener("submit", function (event) {
-        event.preventDefault(); // Impede o reload da página
 
-        const paciente = {
-            nome: document.getElementById("nome").value.trim(),
-            cpf: document.getElementById("cpf").value.trim(),
-            contato: document.getElementById("contato").value.trim(),
-            data_nascimento: document.getElementById("data_nascimento").value,
-            genero: document.getElementById("genero").value
+    <script>
+        let db;
+        const request = indexedDB.open('SistemaExames', 1);
+
+        request.onupgradeneeded = function (event) {
+            db = event.target.result;
+
+            if (!db.objectStoreNames.contains('medicos')) {
+                const medicos = db.createObjectStore('medicos', { keyPath: 'id', autoIncrement: true });
+                medicos.createIndex('cpf', 'cpf', { unique: true });
+                medicos.createIndex('crm', 'crm', { unique: true });
+            }
+
+            if (!db.objectStoreNames.contains('pacientes')) {
+                const pacientes = db.createObjectStore('pacientes', { keyPath: 'id', autoIncrement: true });
+                pacientes.createIndex('cpf', 'cpf', { unique: true });
+            }
+
+            if (!db.objectStoreNames.contains('exames')) {
+                db.createObjectStore('exames', { keyPath: 'id', autoIncrement: true });
+            }
+
+            if (!db.objectStoreNames.contains('requisicoes')) {
+                const requisicoes = db.createObjectStore('requisicoes', { keyPath: 'id', autoIncrement: true });
+                requisicoes.createIndex('idPaciente', 'idPaciente');
+                requisicoes.createIndex('idMedico', 'idMedico');
+                requisicoes.createIndex('idExame', 'idExame');
+            }
+
+            console.log('Estrutura do banco criada.');
         };
 
-        if (!db) {
-            alert("Banco de dados não carregado ainda.");
-            return;
-        }
-
-        const transaction = db.transaction(["pacientes"], "readwrite");
-        const store = transaction.objectStore("pacientes");
-
-        const request = store.add(paciente);
-
-        request.onsuccess = function () {
-            alert("Paciente cadastrado com sucesso!");
-            document.getElementById("formPaciente").reset();
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log('Banco de dados pronto.');
         };
 
         request.onerror = function (event) {
-            alert("Erro ao cadastrar paciente: " + event.target.error);
+            console.error('Erro ao abrir o banco:', event.target.error);
         };
-    });
-</script>
 
+        document.getElementById("formPaciente").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const paciente = {
+                nome: document.getElementById("nome").value.trim(),
+                cpf: document.getElementById("cpf").value.trim(),
+                contato: document.getElementById("contato").value.trim(),
+                data_nascimento: document.getElementById("data_nascimento").value,
+                genero: document.getElementById("genero").value
+            };
+
+            if (!db) {
+                alert("Banco de dados não carregado ainda.");
+                return;
+            }
+
+            const transaction = db.transaction(["pacientes"], "readwrite");
+            const store = transaction.objectStore("pacientes");
+
+            const request = store.add(paciente);
+
+            request.onsuccess = function () {
+                alert("Paciente cadastrado com sucesso!");
+                document.getElementById("formPaciente").reset();
+            };
+
+            request.onerror = function (event) {
+                alert("Erro ao cadastrar paciente: " + event.target.error);
+            };
+        });
+    </script>
 </body>
-
 </html>
