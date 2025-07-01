@@ -4,15 +4,156 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CADASTRO DE MÉDICO</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <title>Cadastro de Médico</title>
+
+    <style>
+        /* Estrutura básica */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+
+        header img {
+            width: 150px;
+        }
+
+        /* MENU CENTRALIZADO E AZUL */
+        nav {
+            background-color: #0056b3;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            position: relative;
+        }
+
+        nav ul li a {
+            color: white;
+            padding: 15px 20px;
+            display: block;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li:hover {
+            background-color: #004095;
+        }
+
+        nav ul li ul {
+            display: none;
+            position: absolute;
+            background: #004095;
+            top: 100%;
+            left: 0;
+            min-width: 200px;
+            z-index: 10;
+        }
+
+        nav ul li:hover ul {
+            display: block;
+        }
+
+        nav ul li ul li a {
+            padding: 10px;
+            font-weight: normal;
+        }
+
+        /* Conteúdo principal */
+        main {
+            padding: 30px 20px;
+        }
+
+        .textoCentral {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form label {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        form input {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .botoes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .botoes a button {
+            background-color: #dc3545;
+        }
+
+        .botoes a button:hover {
+            background-color: #b02a37;
+        }
+
+        footer {
+            background-color: #eee;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 
 <body>
 
     <!-- Cabeçalho -->
     <header>
-        <img src="sua-imagem-aqui.png" alt="Logo do Sistema" />
+        <img src="/media/logo.png" alt="Logo do Sistema" />
     </header>
 
     <!-- Menu de navegação -->
@@ -34,13 +175,37 @@
 
     <!-- Conteúdo principal -->
     <main>
-        <h2 class="textoCentral">CADASTRO DE MÉDICO</h2>
+        <h2 class="textoCentral">Cadastro de Médico</h2>
 
+        <section class="form-container">
+            <form action="#" method="post">
+                <label for="nome">Nome do Médico:</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome completo" required />
+
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required />
+
+                <label for="crm">CRM:</label>
+                <input type="text" id="crm" name="crm" placeholder="CRM do médico" required />
+
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" placeholder="exemplo@dominio.com" required />
+
+                <label for="contato">Contato:</label>
+                <input type="tel" id="contato" name="contato" placeholder="(00) 00000-0000" required />
+
+                <div class="botoes">
+                    <button type="submit">Cadastrar</button>
+                    <button type="reset">Limpar</button>
+                    <a href="/index.html"><button type="button">Cancelar</button></a>
+                </div>
+            </form>
+        </section>
     </main>
 
     <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
 
 </body>
