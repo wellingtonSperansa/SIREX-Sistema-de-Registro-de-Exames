@@ -6,16 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Consultas</title>
     <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .form-consulta {
+            margin: 30px auto;
+            max-width: 700px;
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-consulta label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .form-consulta input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f0f0f0;
+        }
+
+        .btn-buscar {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-buscar:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
-
-    <!-- Cabeçalho -->
     <header>
         <img id="logo-cabecalho" src="/media/Captura de tela 2025-06-30 213203.png" alt="Logo do Sistema" />
     </header>
 
-    <!-- Menu de navegação -->
     <nav>
         <ul>
             <li><a href="/index.html">HOME</a></li>
@@ -32,17 +84,142 @@
         </ul>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main>
-        <h2 class="textoCentral">CONSULTAS</h2>
+        <h2 class="textoCentral">CONSULTAS DE REQUISIÇÕES</h2>
 
+        <section class="form-consulta">
+            <label for="dataBusca">Data da Requisição:</label>
+            <input type="date" id="dataBusca" />
+
+            <label for="nomePacienteBusca">Paciente (nome):</label>
+            <input type="text" id="nomePacienteBusca" placeholder="Digite o nome do paciente" />
+
+            <label for="nomeMedicoBusca">Médico (nome):</label>
+            <input type="text" id="nomeMedicoBusca" placeholder="Digite o nome do médico" />
+
+            <label for="nomeExameBusca">Exame:</label>
+            <input type="text" id="nomeExameBusca" placeholder="Digite o nome do exame" />
+
+            <button class="btn-buscar" onclick="buscarRequisicoes()">Buscar</button>
+        </section>
+
+        <section id="resultadoConsulta"></section>
     </main>
 
-    <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
 
+    <script>
+        let db;
+
+        const request = indexedDB.open("SistemaExames", 1);
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log("Banco de dados carregado.");
+        };
+
+        request.onerror = function (event) {
+            console.error("Erro ao carregar o banco:", event.target.error);
+        };
+
+        async function buscarRequisicoes() {
+            const data = document.getElementById("dataBusca").value;
+            const nomePaciente = document.getElementById("nomePacienteBusca").value.toLowerCase();
+            const nomeMedico = document.getElementById("nomeMedicoBusca").value.toLowerCase();
+            const nomeExame = document.getElementById("nomeExameBusca").value.toLowerCase();
+            const container = document.getElementById("resultadoConsulta");
+            container.innerHTML = '';
+
+            const requisicoes = await obterTodasRequisicoes();
+
+            const resultadoFiltrado = [];
+
+            for (const req of requisicoes) {
+                const paciente = await buscarPorId("pacientes", req.idPaciente);
+                const medico = await buscarPorId("medicos", req.idMedico);
+                const exame = await buscarPorId("exames", req.idExame);
+
+                // Aplicar filtros
+                if (data && req.dataRequisicao !== data) continue;
+                if (nomePaciente && !paciente?.nome.toLowerCase().includes(nomePaciente)) continue;
+                if (nomeMedico && !medico?.nome.toLowerCase().includes(nomeMedico)) continue;
+                if (nomeExame && !exame?.nomeExame.toLowerCase().includes(nomeExame)) continue;
+
+                resultadoFiltrado.push({
+                    paciente: paciente?.nome || "Desconhecido",
+                    medico: medico?.nome || "Desconhecido",
+                    exame: exame?.nomeExame || "Desconhecido",
+                    data: req.dataRequisicao,
+                    observacoes: req.observacoes || ""
+                });
+            }
+
+            if (resultadoFiltrado.length === 0) {
+                container.innerHTML = "<p>Nenhuma requisição encontrada com os filtros aplicados.</p>";
+                return;
+            }
+
+            const tabela = document.createElement("table");
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
+
+            thead.innerHTML = `
+        <tr>
+          <th>Paciente</th>
+          <th>Médico</th>
+          <th>Exame</th>
+          <th>Data</th>
+          <th>Observações</th>
+        </tr>
+      `;
+
+            resultadoFiltrado.forEach(r => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${r.paciente}</td>
+          <td>${r.medico}</td>
+          <td>${r.exame}</td>
+          <td>${r.data}</td>
+          <td>${r.observacoes}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            tabela.appendChild(thead);
+            tabela.appendChild(tbody);
+            container.appendChild(tabela);
+        }
+
+        function obterTodasRequisicoes() {
+            return new Promise((resolve) => {
+                const resultado = [];
+                const tx = db.transaction("requisicoes", "readonly");
+                const store = tx.objectStore("requisicoes");
+
+                store.openCursor().onsuccess = function (event) {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        resultado.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(resultado);
+                    }
+                };
+            });
+        }
+
+        function buscarPorId(storeName, id) {
+            return new Promise((resolve) => {
+                const tx = db.transaction(storeName, "readonly");
+                const store = tx.objectStore(storeName);
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => resolve(null);
+            });
+        }
+    </script>
 </body>
 
 </html>

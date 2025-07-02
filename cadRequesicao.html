@@ -9,7 +9,6 @@
 </head>
 
 <body>
-
     <header>
         <img id="logo-cabecalho" src="/media/Captura de tela 2025-06-30 213203.png" alt="Logo do Sistema" />
     </header>
@@ -32,47 +31,44 @@
 
     <main>
         <h2 class="textoCentral">CADASTRO DE REQUISIÇÃO</h2>
-        <form action="#" method="POST" class="form-cadastro-requisicao">
+        <form id="formRequisicao" class="form-cadastro-requisicao">
             <div class="form-group">
                 <label for="dataRequisicao">Data da Requisição:</label>
-                <input type="date" id="dataRequisicao" name="dataRequisicao" required>
+                <input type="date" id="dataRequisicao" required />
             </div>
+            <br>
+            <hr>
+            <br>
 
             <div class="form-group">
-                <label for="paciente">Paciente:</label>
-                <select id="paciente" name="paciente" required>
+                <label for="cpfPaciente">Buscar Paciente (CPF):</label>
+                <input type="text" id="cpfPaciente" placeholder="000.000.000-00" required />
+                <select id="paciente" required>
                     <option value="">Selecione um paciente</option>
-                    <option value="1">Maria Silva</option>
-                    <option value="2">João Santos</option>
-                    <option value="3">Ana Oliveira</option>
                 </select>
             </div>
+            <br>
+            <hr>
+            <br>
 
             <div class="form-group">
-                <label for="medico">Médico Solicitante:</label>
-                <select id="medico" name="medico" required>
+                <label for="nomeMedico">Buscar Médico (Nome):</label>
+                <input type="text" id="nomeMedico" placeholder="Digite o nome do médico" required />
+                <select id="medico" required>
                     <option value="">Selecione um médico</option>
-                    <option value="101">Dr. Carlos Mendes</option>
-                    <option value="102">Dra. Fernanda Lima</option>
-                    <option value="103">Dr. Rafael Souza</option>
                 </select>
             </div>
-
+            <br>
+            <hr>
+            <br>
             <div class="form-group">
                 <label>Exames Solicitados:</label>
-                <div class="exames-checkboxes">
-                    <label><input type="checkbox" name="exames" value="hemograma"> Hemograma Completo</label>
-                    <label><input type="checkbox" name="exames" value="glicemia"> Glicemia em Jejum</label>
-                    <label><input type="checkbox" name="exames" value="colesterol"> Colesterol Total e Frações</label>
-                    <label><input type="checkbox" name="exames" value="urina"> Exame de Urina</label>
-                    <label><input type="checkbox" name="exames" value="fezes"> Exame de Fezes</label>
-                    <label><input type="checkbox" name="exames" value="raio_x_torax"> Raio-X de Tórax</label>
-                </div>
+                <div id="exames-checkboxes"></div>
             </div>
 
             <div class="form-group">
                 <label for="observacoes">Observações:</label>
-                <textarea id="observacoes" name="observacoes" rows="4"></textarea>
+                <textarea id="observacoes" rows="4"></textarea>
             </div>
 
             <button type="submit" class="btn-submit">Cadastrar Requisição</button>
@@ -83,6 +79,152 @@
         Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
 
+    <script>
+        let db;
+
+        const request = indexedDB.open('SistemaExames', 1);
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log('Banco de dados pronto.');
+
+            preencherDataHoje();
+            carregarPacientes();
+            carregarMedicos();
+            carregarExames();
+        };
+
+        request.onerror = function (event) {
+            console.error('Erro ao abrir o banco:', event.target.error);
+        };
+
+        function preencherDataHoje() {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('dataRequisicao').value = hoje;
+        }
+
+        function carregarPacientes() {
+            const transaction = db.transaction('pacientes', 'readonly');
+            const store = transaction.objectStore('pacientes');
+            const select = document.getElementById('paciente');
+            select.innerHTML = '<option value="">Selecione um paciente</option>';
+
+            store.openCursor().onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const p = cursor.value;
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.textContent = `${p.nome} - CPF: ${p.cpf}`;
+                    select.appendChild(option);
+                    cursor.continue();
+                }
+            };
+        }
+
+        function carregarMedicos() {
+            const transaction = db.transaction('medicos', 'readonly');
+            const store = transaction.objectStore('medicos');
+            const select = document.getElementById('medico');
+            select.innerHTML = '<option value="">Selecione um médico</option>';
+
+            store.openCursor().onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const m = cursor.value;
+                    const option = document.createElement('option');
+                    option.value = m.id;
+                    option.textContent = `${m.nome} - CRM: ${m.crm}`;
+                    select.appendChild(option);
+                    cursor.continue();
+                }
+            };
+        }
+
+        function carregarExames() {
+            const container = document.getElementById('exames-checkboxes');
+            container.innerHTML = '';
+
+            const transaction = db.transaction('exames', 'readonly');
+            const store = transaction.objectStore('exames');
+
+            store.openCursor().onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const exame = cursor.value;
+                    const label = document.createElement('label');
+                    label.innerHTML = `
+            <input type="checkbox" name="exames" value="${exame.id}">
+            ${exame.nomeExame}
+          `;
+                    container.appendChild(label);
+                    cursor.continue();
+                }
+            };
+        }
+
+        // Filtro paciente por CPF
+        document.getElementById('cpfPaciente').addEventListener('input', function () {
+            const cpfBuscado = this.value.trim();
+            const select = document.getElementById('paciente');
+            for (let option of select.options) {
+                if (option.textContent.includes(cpfBuscado)) {
+                    select.value = option.value;
+                    break;
+                }
+            }
+        });
+
+        // Filtro médico por nome
+        document.getElementById('nomeMedico').addEventListener('input', function () {
+            const nomeBuscado = this.value.trim().toLowerCase();
+            const select = document.getElementById('medico');
+            for (let option of select.options) {
+                if (option.textContent.toLowerCase().includes(nomeBuscado)) {
+                    select.value = option.value;
+                    break;
+                }
+            }
+        });
+
+        // Cadastro da requisição
+        document.getElementById('formRequisicao').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const dataRequisicao = document.getElementById('dataRequisicao').value;
+            const idPaciente = parseInt(document.getElementById('paciente').value);
+            const idMedico = parseInt(document.getElementById('medico').value);
+            const observacoes = document.getElementById('observacoes').value;
+
+            const examesSelecionados = Array.from(
+                document.querySelectorAll('input[name="exames"]:checked')
+            ).map(input => parseInt(input.value));
+
+            if (!idPaciente || !idMedico || examesSelecionados.length === 0) {
+                alert('Preencha todos os campos e selecione ao menos um exame.');
+                return;
+            }
+
+            const transaction = db.transaction('requisicoes', 'readwrite');
+            const store = transaction.objectStore('requisicoes');
+
+            // Para cada exame selecionado, criamos uma entrada individual
+            examesSelecionados.forEach(idExame => {
+                const requisicao = {
+                    dataRequisicao,
+                    idPaciente,
+                    idMedico,
+                    idExame,
+                    observacoes
+                };
+                store.add(requisicao);
+            });
+
+            alert('Requisição cadastrada com sucesso!');
+            this.reset();
+            preencherDataHoje();
+        });
+    </script>
 </body>
 
 </html>

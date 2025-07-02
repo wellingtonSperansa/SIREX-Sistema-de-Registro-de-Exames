@@ -35,7 +35,7 @@
     <!-- Conteúdo principal -->
     <main>
         <h2 class="textoCentral">CADASTRO DE EXAMES</h2>
-        <form form class="form-cadastro-requisicao">
+        <form id="formExame" class="form-cadastro-requisicao">
             <div class="form-group">
                 <label for="nomeExame">Nome do Exame:</label>
                 <input type="text" id="nomeExame" name="nomeExame" required>
@@ -51,8 +51,53 @@
 
     <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
+
+    <!-- Script para IndexedDB -->
+    <script>
+        let db;
+
+        const request = indexedDB.open('SistemaExames', 1);
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            console.log('Banco de dados conectado com sucesso.');
+        };
+
+        request.onerror = function (event) {
+            console.error('Erro ao abrir o banco:', event.target.error);
+        };
+
+        document.getElementById('formExame').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (!db) {
+                alert('Banco de dados não disponível. Tente novamente em instantes.');
+                return;
+            }
+
+            const nomeExame = document.getElementById('nomeExame').value;
+            const descricao = document.getElementById('descricaoExame').value;
+
+            const exame = { nomeExame, descricao };
+
+            const transaction = db.transaction(['exames'], 'readwrite');
+            const store = transaction.objectStore('exames');
+
+            const requestAdd = store.add(exame);
+
+            requestAdd.onsuccess = function () {
+                alert('Exame cadastrado com sucesso!');
+                document.getElementById('formExame').reset();
+            };
+
+            requestAdd.onerror = function (event) {
+                console.error('Erro ao cadastrar exame:', event.target.error);
+                alert('Erro ao cadastrar exame.');
+            };
+        });
+    </script>
 
 </body>
 
