@@ -39,35 +39,25 @@
             </div>
 
             <div class="form-group">
-                <label for="paciente">Paciente:</label>
-                <select id="paciente" name="paciente" required>
-                    <option value="">Selecione um paciente</option>
-                    <option value="1">Maria Silva</option>
-                    <option value="2">João Santos</option>
-                    <option value="3">Ana Oliveira</option>
-                </select>
-            </div>
+                 <label for="pacienteInput">Paciente Solicitante (Nome ou CPF):</label>
+                 <input type="text" id="pacienteInput" name="pacienteDisplay" list="pacientesDatalist" placeholder="Digite nome ou CPF" required autocomplete="off">
+                 <datalist id="pacientesDatalist">
+                             </datalist>
+                <input type="hidden" id="pacienteIdHidden" name="paciente">
+             </div>
 
             <div class="form-group">
                 <label for="medico">Médico Solicitante:</label>
-                <select id="medico" name="medico" required>
-                    <option value="">Selecione um médico</option>
-                    <option value="101">Dr. Carlos Mendes</option>
-                    <option value="102">Dra. Fernanda Lima</option>
-                    <option value="103">Dr. Rafael Souza</option>
+                <select id="medico" name="medico[]" required >
+                    <option value="">Carregando médicos...</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label>Exames Solicitados:</label>
-                <div class="exames-checkboxes">
-                    <label><input type="checkbox" name="exames" value="hemograma"> Hemograma Completo</label>
-                    <label><input type="checkbox" name="exames" value="glicemia"> Glicemia em Jejum</label>
-                    <label><input type="checkbox" name="exames" value="colesterol"> Colesterol Total e Frações</label>
-                    <label><input type="checkbox" name="exames" value="urina"> Exame de Urina</label>
-                    <label><input type="checkbox" name="exames" value="fezes"> Exame de Fezes</label>
-                    <label><input type="checkbox" name="exames" value="raio_x_torax"> Raio-X de Tórax</label>
-                </div>
+                <label for="exames">Exames Solicitados:</label>
+                <select id="exames" name="exames[]" required>
+                    <option value="">Carregando exames...</option>
+                </select> 
             </div>
 
             <div class="form-group">
@@ -82,6 +72,8 @@
     <footer>
         Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
+    <script src="src/script.js" defer></script>
+    <script src="src/requisicao.js" defer></script>
 
 </body>
 

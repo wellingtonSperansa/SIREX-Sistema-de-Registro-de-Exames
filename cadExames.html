@@ -51,8 +51,65 @@
 
     <!-- Rodapé -->
     <footer>
-        Desenvolvido por [Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX] – © 2025
+        Desenvolvido por Gabriel Schio, Igor Epping, Maico Klauss e Wellington Speransa / SIREX – © 2025
     </footer>
+    <script src="src/script.js"></script>
+
+    <script>
+        window.activateCadExamesForm = function () {
+    const cadExamesForm = document.querySelector('.form-cadastro-requisicao'); // Seletor do formulário
+    if (cadExamesForm) {
+        cadExamesForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const nomeExame = document.getElementById('nomeExame').value.trim();
+            const descricaoExame = document.getElementById('descricaoExame').value.trim();
+
+            if (!nomeExame) {
+                alert('O nome do exame é obrigatório.');
+                return;
+            }
+
+            const transaction = window.indexedDB_db.transaction(['exames'], 'readwrite');
+            const objectStore = transaction.objectStore('exames');
+
+            
+            const requestCheck = objectStore.index('nome').get(nomeExame);
+
+            requestCheck.onsuccess = function () {
+                if (requestCheck.result) {
+                    alert('Já existe um exame cadastrado com este nome. Por favor, use um nome diferente.');
+                } else {
+                    
+                    const novoExame = {
+                        nome: nomeExame,
+                        descricao: descricaoExame
+                    };
+
+                    const requestAdd = objectStore.add(novoExame);
+
+                    requestAdd.onsuccess = function () {
+                        alert('Exame cadastrado com sucesso!');
+                        cadExamesForm.reset();
+                    };
+
+                    requestAdd.onerror = function () {
+                        console.error('Erro ao cadastrar exame:', requestAdd.error);
+                        alert('Erro ao cadastrar exame. Verifique o console para mais detalhes.');
+                    };
+                }
+            };
+
+            requestCheck.onerror = function () {
+                console.error('Erro ao verificar exame existente:', requestCheck.error);
+                alert('Erro ao verificar exame existente. Verifique o console para mais detalhes.');
+            };
+        });
+    } else {
+        console.error("Formulário de Cadastro de Exames não encontrado para ativar.");
+    }
+    };
+    </script>
 
 </body>
 
